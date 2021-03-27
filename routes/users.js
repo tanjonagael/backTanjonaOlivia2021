@@ -1,13 +1,65 @@
 let User = require('../model/users');
+var jwt = require('jsonwebtoken');
+var config = require('./config');
+var bcrypt = require('bcryptjs');
 
 // Récupérer un utilisateur avec username et password en post
-function postUserByLogin(req, res){
+function auth(req, res){
     let username = req.body.username;
     let userPassword = req.body.password;
-    User.findOne({username: username, password: userPassword}, (err, user) =>{
-        if(err){res.send(err)}
-        res.json(user);
+    User.findOne({username: username}, (err, user) =>{
+        if(err) res.send({ auth: false, token: null});
+        //res.json(user);*/
+        else {
+            if(user!= null){
+                var isValidPassword = bcrypt.compareSync(userPassword, user.password);
+                if(user && isValidPassword){
+                    var token = jwt.sign({ id: user.id ,  fullname: user.fullname }, config.secret, {
+                        expiresIn: 60 // expires in 60 second
+                      });
+                    //  var decoded = jwt_decode(token)
+                    
+                    res.status(200).send({ auth: true, token: token});
+                }
+                else res.send({ auth: false, token: null});
+            }
+            else res.send({ auth: false, token: null}); 
+        }    
     })
+}
+
+
+
+//signUp user
+function signUp(req,res){
+    var user = new User();
+    user.username = req.body.username;
+    var hashedPassword = bcrypt.hashSync(req.body.password, 10);
+    user.password = hashedPassword;
+    user.fullname = req.body.fullname;
+    user.roles = req.body.roles;
+    User.findOne({username: user.username}, (err, userTest) =>{
+        if(err) return 0;
+        //res.json(user);*/
+        else {
+            if(userTest != null){
+                var isValidPassword = bcrypt.compareSync(req.body.password, userTest.password);
+                if(isValidPassword) res.json({signUp: false, message: "Register failed! User duplicate." })
+                else {
+                    user.save( (err) => {
+                        if(err) res.send({signUp: false, message: "Error register!"});
+                        else  res.json({signUp: true, message: ""+user.fullname+" saved !" })
+                    })
+                }
+            }
+            else{
+                user.save( (err) => {
+                    if(err) res.send({signUp: false, message: "Error register!"});
+                    else  res.json({signUp: true, message: ""+user.fullname+" saved !" })
+                })
+            }  
+        }
+    });
 }
 
 
@@ -21,6 +73,7 @@ function getUserByUsername(req, res){
         res.json(user);
     })
 }
+
 function getUser(req, res){
     User.find((err, user) => {
         if(err){
@@ -30,4 +83,4 @@ function getUser(req, res){
     });
 }
 
-module.exports = { postUserByLogin, getUserByUsername, getUser }
+module.exports = { auth, getUserByUsername, getUser, signUp }
