@@ -1,15 +1,24 @@
+const { aggregate } = require("../model/assignment");
 let Assignment = require("../model/assignment");
 
 // Récupérer tous les assignments (GET)
 function getAssignments(req, res) {
-  var aggregateQuery = Assignment.aggregate();
-  Assignment.aggregatePaginate(
-    aggregateQuery,
-    {
-      page: parseInt(req.query.page) || 1,
-      limit: parseInt(req.query.limit) || 10,
-    },
-    (err, assignments) => {
+  let aggregate = Assignment.aggregate([
+    { $lookup: {
+      from: "matieres",
+      localField: "idMatiere",
+      foreignField: "id",
+      as: "matiere" 
+    }}
+  ]);
+
+  let options = { 
+    page: parseInt(req.query.page) || 1,
+    limit: parseInt(req.query.limit) || 20,
+  };
+  // callback
+  Assignment.aggregatePaginate(aggregate, options, (err, assignments) => {
+  
       if (err) {
         res.send(err);
       }
@@ -21,9 +30,16 @@ function getAssignments(req, res) {
 // Récupérer tous les assignments rendu(GET)
 function getAssignmentsRendu(req, res) {
  
-  let aggregate = Assignment.aggregate();
-  aggregate.match({rendu : true });
-  let options = { 
+  let aggregate = Assignment.aggregate([
+    { $match: {rendu:true}},
+    { $lookup: {
+      from: "matieres",
+      localField: "idMatiere",
+      foreignField: "id",
+      as: "matiere" 
+    }}
+  ]);
+let options = { 
       page: parseInt(req.query.page) || 1,
       limit: parseInt(req.query.limit) || 20,
   };
@@ -39,9 +55,16 @@ function getAssignmentsRendu(req, res) {
 // Récupérer tous les assignments non_rendu(GET)
 function getAssignmentsNonRendu(req, res) {
  
-  let aggregate = Assignment.aggregate();
-  aggregate.match({rendu : false });
-  let options = { 
+  let aggregate = Assignment.aggregate([
+    { $match: {rendu:false}},
+    { $lookup: {
+      from: "matieres",
+      localField: "idMatiere",
+      foreignField: "id",
+      as: "matiere" 
+    }}
+  ]);
+let options = { 
       page: parseInt(req.query.page) || 1,
       limit: parseInt(req.query.limit) || 20,
   };
@@ -58,13 +81,29 @@ function getAssignmentsNonRendu(req, res) {
 // Récupérer un assignment par son id (GET)
 function getAssignment(req, res) {
   let assignmentId = req.params.id;
+  let aggregate = Assignment.aggregate([
+    { $match: {id: assignmentId}},
+    { $lookup: {
+      from: "matieres",
+      localField: "idMatiere",
+      foreignField: "id",
+      as: "matieres" 
+    }}
+  ]);
 
-  Assignment.findOne({ id: assignmentId }, (err, assignment) => {
-    if (err) {
-      res.send(err);
+  let options = { 
+      
+  };
+  // callback
+  Assignment.aggregatePaginate(aggregate, options, (err, assignments) => {
+  
+      if (err) {
+        res.send(err);
+      }
+      res.send(assignments.docs[0]);
     }
-    res.json(assignment);
-  });
+  );
+
 }
 
 // Ajout d'un assignment (POST)
