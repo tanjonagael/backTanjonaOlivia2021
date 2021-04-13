@@ -9,6 +9,7 @@ let UserSchema = Schema({
  fullname: String,
  roles: Number
 });
+
 //UserSchema.plugin(aggregatePaginate);
 // C'est à travers ce modèle Mongoose qu'on pourra faire le CRUD
 module.exports = mongoose.model("User", UserSchema, "users");
