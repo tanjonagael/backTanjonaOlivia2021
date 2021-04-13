@@ -9,5 +9,5 @@ let RolesSchema = Schema({
 
 
 RolesSchema.plugin(aggregatePaginate);
-// C'est à travers ce modèle Mongoose qu'on pourra faire le CRUD
+// C'est à travers ce modèle Mongoose qu'on pourra faire le CRUDa
 module.exports = mongoose.model("Roles", RolesSchema, "roles");
