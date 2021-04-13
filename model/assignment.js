@@ -20,6 +20,9 @@ let AssignmentSchema = Schema({
  dateDeRendu: Date,
  nom: String,
  rendu: Boolean,
+ idMatiere: Number,
+ note: Number,
+ remarque: String
 });
 
 
