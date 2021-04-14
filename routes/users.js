@@ -14,7 +14,7 @@ function auth(req, res){
             if(user!= null){
                 var isValidPassword = bcrypt.compareSync(userPassword, user.password);
                 if(user && isValidPassword){
-                    var token = jwt.sign({ id: user.id ,  fullname: user.fullname }, config.secret, {
+                    var token = jwt.sign({ id: user.id ,  fullname: user.fullname, roles: user.roles }, config.secret, {
                         expiresIn: 60 // expires in 60 second
                       });
                     //  var decoded = jwt_decode(token)

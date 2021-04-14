@@ -22,7 +22,8 @@ let AssignmentSchema = Schema({
  rendu: Boolean,
  idMatiere: Number,
  note: Number,
- remarque: String
+ remarque: String,
+ auteur: String,
 });
 
 
