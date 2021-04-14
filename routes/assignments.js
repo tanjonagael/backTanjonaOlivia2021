@@ -134,18 +134,15 @@ function postAssignment(req, res) {
 
 // Update d'un assignment (PUT)
 function updateAssignment(req, res) {
-  console.log("UPDATE recu assignment : ");
-  console.log(req.body);
   Assignment.findByIdAndUpdate(
     req.body._id,
     req.body,
     { new: true },
     (err, assignment) => {
       if (err) {
-        console.log(err);
         res.send(err);
       } else {
-        res.json({ message: "updated" });
+        res.json({ updated: true });
       }
 
       // console.log('updated ', assignment)
