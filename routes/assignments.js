@@ -9,7 +9,8 @@ function getAssignments(req, res) {
       localField: "idMatiere",
       foreignField: "id",
       as: "matiere" 
-    }}
+    }},
+    { $sort : { dateDeRendu : -1} }
   ]);
 
   let options = { 
@@ -37,7 +38,8 @@ function getAssignmentsRendu(req, res) {
       localField: "idMatiere",
       foreignField: "id",
       as: "matiere" 
-    }}
+    }},
+    { $sort : { dateDeRendu : -1} }
   ]);
 let options = { 
       page: parseInt(req.query.page) || 1,
@@ -62,7 +64,8 @@ function getAssignmentsNonRendu(req, res) {
       localField: "idMatiere",
       foreignField: "id",
       as: "matiere" 
-    }}
+    }},
+    { $sort : { dateDeRendu : -1} }
   ]);
 let options = { 
       page: parseInt(req.query.page) || 1,
@@ -80,14 +83,15 @@ let options = {
 
 // Récupérer un assignment par son id (GET)
 function getAssignment(req, res) {
-  let assignmentId = req.params.id;
+  let assignmentId = parseInt(req.params.id);
+ 
   let aggregate = Assignment.aggregate([
     { $match: {id: assignmentId}},
     { $lookup: {
       from: "matieres",
       localField: "idMatiere",
       foreignField: "id",
-      as: "matieres" 
+      as: "matiere" 
     }}
   ]);
 
