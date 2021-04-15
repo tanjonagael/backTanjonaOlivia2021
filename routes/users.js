@@ -56,7 +56,7 @@ function signUp(req,res){
                
                 user.save( (err) => {
                     if(err) {
-                        console.log(err);
+                        
                         res.send({signUp: false, message: "Error register!"});
                     }
                     else  res.json({signUp: true, message: ""+user.fullname+" saved !" })

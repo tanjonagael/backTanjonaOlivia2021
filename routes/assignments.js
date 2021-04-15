@@ -122,8 +122,7 @@ function postAssignment(req, res) {
   assignment.remarque = req.body.remarque;
   assignment.auteur = req.body.auteur;
 
-  console.log("POST assignment reçu :");
-  console.log(assignment.nom);
+  
 
   assignment.save((err) => {
     if (err) {
