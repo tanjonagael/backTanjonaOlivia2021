@@ -157,7 +157,7 @@ function deleteAssignment(req, res) {
     if (err) {
       res.send(err);
     }
-    res.json({ message: `${assignment.nom} deleted` });
+    res.json({ deleted : true});
   });
 }
 

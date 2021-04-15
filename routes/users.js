@@ -14,8 +14,8 @@ function auth(req, res){
             if(user!= null){
                 var isValidPassword = bcrypt.compareSync(userPassword, user.password);
                 if(user && isValidPassword){
-                    var token = jwt.sign({ id: user.id ,  fullname: user.fullname, roles: user.roles }, config.secret, {
-                        expiresIn: 60 // expires in 60 second
+                    var token = jwt.sign({ id: user._id , username:user.username, fullname: user.fullname, roles: user.roles }, config.secret, {
+                        expiresIn: 300 // expires in 300 second
                       });
                     //  var decoded = jwt_decode(token)
                     
@@ -53,8 +53,12 @@ function signUp(req,res){
                 }
             }
             else{
+               
                 user.save( (err) => {
-                    if(err) res.send({signUp: false, message: "Error register!"});
+                    if(err) {
+                        console.log(err);
+                        res.send({signUp: false, message: "Error register!"});
+                    }
                     else  res.json({signUp: true, message: ""+user.fullname+" saved !" })
                 })
             }  
@@ -65,13 +69,30 @@ function signUp(req,res){
 
 // Récupérer un utilisateur avec username et password en post
 function getUserByUsername(req, res){
-    let usernameVal = req.params.id;
-    User.findOne({id: usernameVal}, (err, user) =>{
-        if(err){
-            res.send(err)
+    let username = req.params.id;
+    let aggregate = User.aggregate([
+      { $match: {username: username}},
+      { $lookup: {
+        from: "roles",
+        localField: "roles",
+        foreignField: "id",
+        as: "role_user" 
+      }}
+    ]);
+  
+    let options = { 
+        
+    };
+    // callback
+    User.aggregatePaginate(aggregate, options, (err, user) => {
+    
+        if (err) {
+          res.send(err);
         }
-        res.json(user);
-    })
+        res.send(user.docs[0]);
+      }
+    );
+  
 }
 
 function getUser(req, res){
